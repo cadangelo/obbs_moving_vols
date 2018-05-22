@@ -58,40 +58,52 @@ Range get_children_by_dimension(EntityHandle parent, int desired_dimension)
 
 }
 
+ErrorCode delete_surf_trees(EntityHandle vol_root){
+
+//std::vector<EntityHandle> children;
+//ErrorCode rval = instance->get_child_meshsets( set, children, 0 );
+//if (MB_SUCCESS != rval)
+//  return rval;
+//
+//GTT->obb_tree()->createdTrees.erase( 
+//  std::remove( GTT->obb_tree()->createdTrees.begin(), GTT->obb_tree()->createdTrees.end(), set ),
+//  GTT->obb_tree()->createdTrees.end() );
+//return MB_SUCCESS;
+}
+
 int main(int argc, char **argv){
 
 ErrorCode rval;
 
-Range vols;
-EntityHandle fileset;
-std::string filename = argv[1];
-std::cout << filename<< std::endl;
-
 MBI = new Core();
 
+// get dim tag
 int negone = -1;
 rval = MBI->tag_get_handle( GEOM_DIMENSION_TAG_NAME, 1, MB_TYPE_INTEGER,
                               geom_tag);
-  std::cout << "get tag handle " << rval << std::endl;
-//, MB_TAG_SPARSE|MB_TAG_CREAT,&negone);
 //Load file into meshset 
+EntityHandle fileset;
+std::string filename = argv[1];
+std::cout << filename<< std::endl;
 rval = MBI->create_meshset(MESHSET_SET, fileset);
 MB_CHK_SET_ERR(rval, "Error creating meshset.");
 rval = MBI->load_file(filename.c_str(), &fileset);
 MB_CHK_SET_ERR(rval, "Error loading file.");
 
 //Build obb trees
-//GeomTopoTool *gtt = new GeomTopoTool(MBI);
 GTT = new GeomTopoTool(MBI);
-
 rval = GTT->construct_obb_trees(false);
 MB_CHK_SET_ERR(rval, "Error constructing all trees.");
 //EntityHandle modelSet;
 //modelSet = GTT->get_root_model_set();
 
+//Get all volumes
+Range vols;
 rval = GTT->get_gsets_by_dimension(3, vols);
-std::cout << vols.size() << std::endl;
-
+std::cout << "num vols gsets " << vols.size() << std::endl;
+Range surfs, surfs1;
+rval = GTT->get_gsets_by_dimension(2, surfs1);
+std::cout << "num surfs1 gsets " << surfs1.size() << std::endl;
 int tag_dim;// = 3; 
 rval = MBI->tag_get_data( geom_tag, &(*vols.begin()), 1, &tag_dim);
 std::cout << "get data " << rval << " " << tag_dim<< std::endl;
@@ -101,7 +113,7 @@ num_vols = GTT->num_ents_of_dim(3);
 MB_CHK_SET_ERR(rval, "Error getting 3 ents.");
 std::cout << "num vols in model set " << num_vols << std::endl;
 
-
+//Get root of a volume obb
 EntityHandle root, sroot;
 rval = GTT->get_root(*vols.begin(), root);
 MB_CHK_SET_ERR(rval, "Error getting root.");
@@ -122,11 +134,14 @@ std::cout << "root eh " << root << std::endl;
 //
 //}
   
-// Delete old vol root
-  rval = GTT->obb_tree()->delete_tree(*vols.begin());
-  MB_CHK_SET_ERR(rval, "Error removing surf tree.");
-  rval = GTT->get_root(*vols.begin(), sroot);
-  MB_CHK_SET_ERR(rval, "Error finding vol root.");
+// Delete old vol obb tree
+rval = GTT->obb_tree()->delete_tree(*vols.begin());
+MB_CHK_SET_ERR(rval, "Error removing surf tree.");
+
+rval = GTT->get_gsets_by_dimension(2, surfs);
+std::cout << "num surfs gsets " << surfs.size() << std::endl;
+rval = GTT->get_root(*vols.begin(), sroot);
+MB_CHK_SET_ERR(rval, "Error finding vol root.");
 std::cout << "orig vol root eh " << sroot << std::endl;
 rval = GTT->remove_root(*vols.begin());
 MB_CHK_SET_ERR(rval, "Error removing vol root.");
