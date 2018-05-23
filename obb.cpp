@@ -133,21 +133,25 @@ std::cout << "root eh " << root << std::endl;
 //  MB_CHK_SET_ERR(rval, "Error removing surf root.");
 //
 //}
+
+// Unjoin vol tree
+rval = GTT->obb_tree()->unjoin_trees(root);
+MB_CHK_SET_ERR(rval, "Error unjoining vol tree.");
   
 // Delete old vol obb tree
-rval = GTT->obb_tree()->delete_tree(*vols.begin());
-MB_CHK_SET_ERR(rval, "Error removing surf tree.");
-
-rval = GTT->get_gsets_by_dimension(2, surfs);
-std::cout << "num surfs gsets " << surfs.size() << std::endl;
-rval = GTT->get_root(*vols.begin(), sroot);
-MB_CHK_SET_ERR(rval, "Error finding vol root.");
-std::cout << "orig vol root eh " << sroot << std::endl;
-rval = GTT->remove_root(*vols.begin());
-MB_CHK_SET_ERR(rval, "Error removing vol root.");
-
-// Rebuild vol and surf tree
-std::cout << "vol eh " << *vols.begin() << std::endl;
+//rval = GTT->obb_tree()->delete_tree(*vols.begin());
+//MB_CHK_SET_ERR(rval, "Error removing surf tree.");
+//
+//rval = GTT->get_gsets_by_dimension(2, surfs);
+//std::cout << "num surfs gsets " << surfs.size() << std::endl;
+//rval = GTT->get_root(*vols.begin(), sroot);
+//MB_CHK_SET_ERR(rval, "Error finding vol root.");
+//std::cout << "orig vol root eh " << sroot << std::endl;
+//rval = GTT->remove_root(*vols.begin());
+//MB_CHK_SET_ERR(rval, "Error removing vol root.");
+//
+//// Rebuild vol and surf tree
+//std::cout << "vol eh " << *vols.begin() << std::endl;
 //int tag_dim;// = 3; 
 //rval = MBI->tag_get_data( geom_tag, &(*vols.begin()), 1, &tag_dim);
 //std::cout << "get data " << rval << " " << tag_dim<< std::endl;
@@ -160,11 +164,11 @@ std::cout << "vol eh " << *vols.begin() << std::endl;
 
 
 
-rval = GTT->construct_obb_tree(*vols.begin());
-MB_CHK_SET_ERR(rval, "Error building vol tree.");
-  rval = GTT->get_root(*vols.begin(), sroot);
-  MB_CHK_SET_ERR(rval, "Error finding vol root.");
-std::cout << "new vol root eh " << sroot << std::endl;
+//rval = GTT->construct_obb_tree(*vols.begin());
+//MB_CHK_SET_ERR(rval, "Error building vol tree.");
+//  rval = GTT->get_root(*vols.begin(), sroot);
+//  MB_CHK_SET_ERR(rval, "Error finding vol root.");
+//std::cout << "new vol root eh " << sroot << std::endl;
 
 
 
