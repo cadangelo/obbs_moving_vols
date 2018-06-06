@@ -91,6 +91,14 @@ rval = MBI->load_file(filename.c_str(), &fileset);
 MB_CHK_SET_ERR(rval, "Error loading file.");
 
 GTT = new GeomTopoTool(MBI);
+
+//Get all volumes
+Range vols;
+rval = GTT->get_gsets_by_dimension(3, vols);
+std::cout << "num vols gsets " << vols.size() << std::endl;
+Range surfs, surfs1;
+rval = GTT->get_gsets_by_dimension(2, surfs1);
+std::cout << "num surfs1 gsets " << surfs1.size() << std::endl;
  
 //Set up IC
 rval = GTT->setup_implicit_complement();
@@ -108,13 +116,6 @@ std::cout << "num created trees " << GTT->obb_tree()->num_created_trees() << std
 //EntityHandle modelSet;
 //modelSet = GTT->get_root_model_set();
 
-//Get all volumes
-Range vols;
-rval = GTT->get_gsets_by_dimension(3, vols);
-std::cout << "num vols gsets " << vols.size() << std::endl;
-Range surfs, surfs1;
-rval = GTT->get_gsets_by_dimension(2, surfs1);
-std::cout << "num surfs1 gsets " << surfs1.size() << std::endl;
 int tag_dim;// = 3; 
 rval = MBI->tag_get_data( geom_tag, &(*vols.begin()), 1, &tag_dim);
 std::cout << "get data " << rval << " " << tag_dim<< std::endl;
@@ -171,16 +172,18 @@ rval = GTT->obb_tree()->unjoin_trees(icroot);
 MB_CHK_SET_ERR(rval, "Error unjoining vol tree.");
 
 // Delete surf obb tree
-rval = GTT->obb_tree()->delete_tree_not_ents(first_surf_root);
-MB_CHK_SET_ERR(rval, "Error removing surf tree.");
-rval = GTT->construct_obb_tree(first_surf);
-MB_CHK_SET_ERR(rval, "Error building surf tree.");
+//rval = GTT->obb_tree()->delete_tree_not_ents(first_surf_root);
+//rval = GTT->delete_obb_tree(first_surf);
+//MB_CHK_SET_ERR(rval, "Error removing surf tree.");
+//rval = GTT->construct_obb_tree(first_surf);
+//MB_CHK_SET_ERR(rval, "Error building surf tree.");
   
 // Delete a vol obb tree
 rval = GTT->is_owned_set(first_vol);
 MB_CHK_SET_ERR(rval, "vol not in model set.");
 
-rval = GTT->obb_tree()->delete_tree_not_ents(first_vol_root);
+//rval = GTT->obb_tree()->delete_tree_not_ents(first_vol_root);
+rval = GTT->delete_obb_tree(first_vol);
 MB_CHK_SET_ERR(rval, "Error removing vol tree.");
 
 rval = GTT->is_owned_set(first_vol);
@@ -218,6 +221,10 @@ MB_CHK_SET_ERR(rval, "Error getting root.");
 //  rval = GTT->get_root(*vols.begin(), sroot);
 //  MB_CHK_SET_ERR(rval, "Error finding vol root.");
 std::cout << "new vol root eh " << first_vol_root << std::endl;
+
+// Rebuild IC vol tree 
+rval = GTT->construct_obb_tree(ic_vol);
+MB_CHK_SET_ERR(rval, "Error building IC vol tree.");
 std::cout << "num created trees " << GTT->obb_tree()->num_created_trees() << std::endl;
 
 
